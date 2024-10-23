@@ -1,8 +1,17 @@
 import { createContext, useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import data from "@/data/initialUsersData.json";
 
-type UserData = unknown;
+// TODO: normalize data for O(1) lookups
+
+type UserData = {
+  id: string;
+  name: string;
+  country: string;
+  email: string;
+  phone: string;
+};
 
 export const UsersContext = createContext<{
   usersData: UserData[];
@@ -29,8 +38,9 @@ function sleep(ms: number, signal: AbortController["signal"]) {
 }
 
 async function getData(signal: AbortController["signal"]): Promise<UserData[]> {
-  await sleep(2000, signal);
-  return data;
+  // TODO: return to 2000 before prod
+  await sleep(100, signal);
+  return data.map((user) => ({ ...user, id: uuidv4() }));
 }
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -38,15 +48,21 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
     const abortController = new AbortController();
 
-    const fn = async () => {
-      const data = await getData(abortController.signal);
-      setUsersData(data);
+    const asyncFn = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getData(abortController.signal);
+        setUsersData(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fn();
+    asyncFn();
 
     return () => {
       abortController.abort();

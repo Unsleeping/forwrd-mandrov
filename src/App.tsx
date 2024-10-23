@@ -10,7 +10,7 @@ function App() {
       <Providers>
         <Routes>
           <Route path="/" element={<StatisticsPage />} />
-          <Route path="users" element={<UsersPage />} />
+          <Route path="/users" element={<UsersPage />} />
         </Routes>
       </Providers>
     </BrowserRouter>

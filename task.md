@@ -1,14 +1,3 @@
-## React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-To run the project locally: clone -> npm i -> npm start
-
 ## Description
 
 You are tasked with building a react app that receives a long list of users.
@@ -50,11 +39,11 @@ You can choose any other state management solution you prefer instead of the bui
   - On change of each input, if invalid value has been entered, the field should have an 'error' state - it's border will become red (by passing error={true} prop to the input)
 
   - Validation rules for the task:
+
     - name should include only letters a-z (not case sensitive)
     - country should be one of the countries in the options provided
     - email - you can use an email validation regex, or for simplicity - email must contain exactly one '@' character
     - phone - must have a '+' character as first character, but only one '+' (for simplicity we won't check numeric characters etc)
-
 
   - Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count.
 
@@ -64,7 +53,7 @@ You can choose any other state management solution you prefer instead of the bui
 
     Render a separate container beneath the users container and above the save button, which includes information counting the error types, like so: (you can design this as you wish)
 
-    ``"Errors: Empty Fields - 2, Invalid Fields - 5"``
+    `"Errors: Empty Fields - 2, Invalid Fields - 5"`
 
     It means there are 7 fields with red border overall, 5 of them include invalid content but not empty, 2 of them are empty.
 
@@ -87,11 +76,12 @@ You can choose any other state management solution you prefer instead of the bui
 - If you don't manage to show the data in a graphic solution as a pie chart, or you don't have enough time, the minimum requirement is to render a list of the countries we have - and render near each country a number of how many users are from this country.
 
 ### Bonus Round :)
+
 - Deploy your code to any platform you wish to be accessible from the web.
 
 ### General notes:
+
 - Make sure the code meets your standards (dont take the current code standards as guidelines/for granted) and allows you to express yourself. Feel free to make any changes to the existing code, changing the components implementation, changing passed props, css, and so on.
 - Using Vite is optional. Again - feel free to make any changes.
 - The suggested design and Look&Feel (mock) are also optional. You can follow it or design your own.
 - If there are any other changes or optimizations that you think are in place and it wasn't mentioned here, we would be glad for you to mention and explain 🤩
-
