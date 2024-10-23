@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { twMerge } from "tailwind-merge";
 
 import { LS_USERS_KEY } from "@/lib/constants";
-import { UserData } from "@/lib/types";
+import { UserData, ZodSchemasType } from "@/lib/types";
 import data from "@/data/initialUsersData.json";
 
 export function cn(...inputs: ClassValue[]) {
@@ -60,3 +60,13 @@ export async function getData(
   setStorageItem(LS_USERS_KEY, dataWithId);
   return dataWithId;
 }
+
+export const getErrorMessage = (schema: ZodSchemasType, value: string) => {
+  const validationResult = schema.safeParse(value);
+  if (!validationResult.success) {
+    const formatted = validationResult.error.format();
+    const errorMessage = formatted._errors.join(", ");
+    return errorMessage;
+  }
+  return "";
+};

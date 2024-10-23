@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodEffects, ZodString } from "zod";
 import { formSchema, userSchema } from "./schemas";
 
 export type User = z.infer<typeof userSchema>;
@@ -12,3 +12,5 @@ export type UserData = {
   email: string;
   phone: string;
 };
+
+export type ZodSchemasType = ZodString | ZodEffects<ZodString, string, string>;

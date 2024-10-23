@@ -14,11 +14,11 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FormType } from "@/lib/types";
+import { emailSchema, nameSchema, phoneSchema } from "@/lib/schemas";
+import { AwesomeInput } from "@/pages/users/awesome-input";
 
 type UserRowProps = {
   index: number;
@@ -33,21 +33,12 @@ export const UserRow = ({
   style,
   formControl,
 }: UserRowProps) => {
-  const { getValues, setValue, trigger } = useFormContext();
+  const { getValues, setValue } = useFormContext();
   const nameKey = `users.${index}.name` as const;
   const countryKey = `users.${index}.country` as const;
   const emailKey = `users.${index}.email` as const;
   const phoneKey = `users.${index}.phone` as const;
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    nameKey: string
-  ) => {
-    setValue(nameKey, e.target.value);
-  };
-  const handleBlur = () => {
-    // trigger a validation for all fields
-    trigger();
-  };
+
   return (
     <div
       style={style}
@@ -60,14 +51,12 @@ export const UserRow = ({
           <FormItem>
             <FormLabel className="max-sm:flex hidden">Name</FormLabel>
             <FormControl>
-              <Input
-                defaultValue={getValues(nameKey)}
-                onChange={(e) => handleChange(e, nameKey)}
-                onBlur={handleBlur}
+              <AwesomeInput
+                propsedKey={nameKey}
+                schema={nameSchema}
                 placeholder="Name"
               />
             </FormControl>
-            <FormMessage className="ml-1 !mt-1" />
           </FormItem>
         )}
       />
@@ -92,7 +81,6 @@ export const UserRow = ({
                 ))}
               </SelectContent>
             </Select>
-            <FormMessage className="ml-1 !mt-1" />
           </FormItem>
         )}
       />
@@ -104,14 +92,12 @@ export const UserRow = ({
           <FormItem>
             <FormLabel className="max-sm:flex hidden">Email</FormLabel>
             <FormControl>
-              <Input
-                defaultValue={getValues(emailKey)}
-                onChange={(e) => handleChange(e, emailKey)}
-                onBlur={handleBlur}
+              <AwesomeInput
+                propsedKey={emailKey}
+                schema={emailSchema}
                 placeholder="example@email.com"
               />
             </FormControl>
-            <FormMessage className="ml-1 !mt-1" />
           </FormItem>
         )}
       />
@@ -123,14 +109,12 @@ export const UserRow = ({
           <FormItem>
             <FormLabel className="max-sm:flex hidden">Phone</FormLabel>
             <FormControl>
-              <Input
-                defaultValue={getValues(phoneKey)}
-                onChange={(e) => handleChange(e, phoneKey)}
-                onBlur={handleBlur}
+              <AwesomeInput
+                propsedKey={phoneKey}
+                schema={phoneSchema}
                 placeholder="Phone"
               />
             </FormControl>
-            <FormMessage className="ml-1 !mt-1" />
           </FormItem>
         )}
       />
