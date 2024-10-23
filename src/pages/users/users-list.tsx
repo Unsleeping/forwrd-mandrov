@@ -4,6 +4,8 @@ import { UserRoundPlus } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import debounce from "debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { VariableSizeList } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +14,10 @@ import useUsersContext from "@/hooks/useUsersContext";
 import { setStorageItem } from "@/lib/utils";
 import { LS_USERS_KEY } from "@/lib/constants";
 import { formSchema } from "@/lib/schemas";
-import { FormType, User } from "@/lib/types";
+import {
+  FormType,
+  // User
+} from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { UserRow } from "./user-row";
 import { Form } from "@/components/ui/form";
@@ -32,7 +37,7 @@ export default function UserList() {
     control,
     formState: { errors, dirtyFields },
     reset,
-    watch,
+    // watch,
   } = form;
 
   const { fields, remove, prepend } = useFieldArray({
@@ -55,23 +60,23 @@ export default function UserList() {
     });
   };
 
-  const watchedUsers = watch("users");
+  // const watchedUsers = watch("users");
 
-  const errorCounts = watchedUsers.reduce(
-    (acc, user, index) => {
-      Object.keys(user).forEach((key) => {
-        if (key !== "id" && errors.users?.[index]?.[key as keyof User]) {
-          if (user[key as keyof User] === "") {
-            acc.emptyFields++;
-          } else {
-            acc.invalidFields++;
-          }
-        }
-      });
-      return acc;
-    },
-    { emptyFields: 0, invalidFields: 0 }
-  );
+  // const errorCounts = watchedUsers.reduce(
+  //   (acc, user, index) => {
+  //     Object.keys(user).forEach((key) => {
+  //       if (key !== "id" && errors.users?.[index]?.[key as keyof User]) {
+  //         if (user[key as keyof User] === "") {
+  //           acc.emptyFields++;
+  //         } else {
+  //           acc.invalidFields++;
+  //         }
+  //       }
+  //     });
+  //     return acc;
+  //   },
+  //   { emptyFields: 0, invalidFields: 0 }
+  // );
 
   const filteredFields = fields.filter((field) =>
     Object.values(field).some((value) => {
@@ -102,7 +107,7 @@ export default function UserList() {
   });
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-full">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Users List ({fields.length})</h2>
         <Input
@@ -113,15 +118,18 @@ export default function UserList() {
         />
       </div>
 
-      <div className="mt-4 mb-4">
+      {/* <div className="mt-4 mb-4">
         Errors: Empty Fields - {errorCounts.emptyFields}, Invalid Fields -{" "}
         {errorCounts.invalidFields}
-      </div>
+      </div> */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col h-[calc(100%-86px)]"
+        >
           <Button
             type="submit"
-            className="mb-4"
+            className="mb-4 w-fit"
             disabled={
               Object.keys(errors).length > 0 ||
               Object.keys(dirtyFields).length === 0
@@ -129,7 +137,7 @@ export default function UserList() {
           >
             Save Changes
           </Button>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg grid grid-rows-[auto_1fr] h-full">
             <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 bg-gray-100 p-4 font-semibold items-center max-sm:grid-cols-[1fr_1fr]">
               <div className="hidden max-sm:flex">Users Table</div>
               <div className="ml-2 max-sm:hidden">Name</div>
@@ -147,14 +155,29 @@ export default function UserList() {
             {isLoading ? (
               <SkeletonRows />
             ) : (
-              filteredFields.map((field, index) => (
-                <UserRow
-                  key={field.id}
-                  index={index}
-                  formControl={form.control}
-                  onRemove={() => remove(index)}
-                />
-              ))
+              <div>
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <VariableSizeList
+                      height={height}
+                      itemCount={filteredFields.length}
+                      itemSize={() => 71.2}
+                      width={width}
+                      itemData={filteredFields}
+                    >
+                      {({ index, style }) => {
+                        return (
+                          <UserRow
+                            index={index}
+                            style={style}
+                            onRemove={() => remove(index)}
+                          />
+                        );
+                      }}
+                    </VariableSizeList>
+                  )}
+                </AutoSizer>
+              </div>
             )}
           </div>
         </form>
