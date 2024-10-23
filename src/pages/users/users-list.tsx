@@ -4,28 +4,30 @@ import { UserRoundPlus } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import debounce from "debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { VariableSizeList } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import useUsersContext from "@/hooks/useUsersContext";
-import { setStorageItem } from "@/lib/utils";
+import { cn, setStorageItem } from "@/lib/utils";
 import { LS_USERS_KEY } from "@/lib/constants";
 import { formSchema } from "@/lib/schemas";
-import {
-  FormType,
-  // User
-} from "@/lib/types";
+import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
-import { UserRow } from "./user-row";
 import { Form } from "@/components/ui/form";
+import { VirtualizedList } from "@/components/virtualized-list";
+import useUsers from "@/hooks/useUsers";
+import useSetUsers from "@/hooks/useSetUsers";
+import useIsLoading from "@/hooks/useIsLoading";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
+// TODO: fix folder structure before submitting
+
+// TODO: disabled save changed, update values into context
 
 export default function UserList() {
-  const { usersData, isLoading } = useUsersContext();
+  const usersData = useUsers();
+  const isLoading = useIsLoading();
+  const setUsersData = useSetUsers();
   const [searchTerm, setSearchTerm] = useState("");
 
   const form = useForm<FormType>({
@@ -36,9 +38,9 @@ export default function UserList() {
   const {
     control,
     formState: { errors, dirtyFields },
-    reset,
-    // watch,
   } = form;
+
+  console.log("🚀 ~ UserList ~ errors:", errors);
 
   const { fields, remove, prepend } = useFieldArray({
     control,
@@ -47,7 +49,7 @@ export default function UserList() {
 
   const onSubmit = (values: FormType) => {
     setStorageItem(LS_USERS_KEY, values.users);
-    reset(values, { keepValues: true });
+    setUsersData(values.users);
   };
 
   const handleAddUser = () => {
@@ -59,8 +61,6 @@ export default function UserList() {
       phone: "",
     });
   };
-
-  // const watchedUsers = watch("users");
 
   // const errorCounts = watchedUsers.reduce(
   //   (acc, user, index) => {
@@ -104,7 +104,7 @@ export default function UserList() {
     return () => {
       debouncedSearch.clear();
     };
-  });
+  }, [debouncedSearch]);
 
   return (
     <div className="p-4 h-full">
@@ -114,7 +114,7 @@ export default function UserList() {
           type="text"
           placeholder="Search users..."
           onChange={debouncedSearch}
-          className="max-w-xs"
+          className="max-w-60"
         />
       </div>
 
@@ -125,7 +125,8 @@ export default function UserList() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col h-[calc(100%-86px)]"
+          // 52px = btn+mb
+          className="flex flex-col h-[calc(100%-52px)]"
         >
           <Button
             type="submit"
@@ -137,7 +138,12 @@ export default function UserList() {
           >
             Save Changes
           </Button>
-          <div className="border rounded-lg grid grid-rows-[auto_1fr] h-full">
+          <div
+            className={cn(
+              "border rounded-lg grid grid-rows-[auto_1fr]",
+              !isLoading && "h-full"
+            )}
+          >
             <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 bg-gray-100 p-4 font-semibold items-center max-sm:grid-cols-[1fr_1fr]">
               <div className="hidden max-sm:flex">Users Table</div>
               <div className="ml-2 max-sm:hidden">Name</div>
@@ -155,29 +161,12 @@ export default function UserList() {
             {isLoading ? (
               <SkeletonRows />
             ) : (
-              <div>
-                <AutoSizer>
-                  {({ height, width }) => (
-                    <VariableSizeList
-                      height={height}
-                      itemCount={filteredFields.length}
-                      itemSize={() => 71.2}
-                      width={width}
-                      itemData={filteredFields}
-                    >
-                      {({ index, style }) => {
-                        return (
-                          <UserRow
-                            index={index}
-                            style={style}
-                            onRemove={() => remove(index)}
-                          />
-                        );
-                      }}
-                    </VariableSizeList>
-                  )}
-                </AutoSizer>
-              </div>
+              <VirtualizedList
+                control={control}
+                itemsCount={filteredFields.length}
+                onRemove={remove}
+                itemData={filteredFields}
+              />
             )}
           </div>
         </form>
