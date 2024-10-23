@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import data from "@/data/initialUsersData.json";
 import { getStorageItem, setStorageItem } from "@/lib/utils";
 import { LS_USERS_KEY } from "@/lib/constants";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 type UserData = {
   id: string;
@@ -84,7 +85,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     // TODO: maybe release isLoading into its own context
     <UsersContext.Provider value={{ usersData, isLoading }}>
       <SetUsersContext.Provider value={{ setUsersData }}>
-        {children}
+        <SidebarProvider>{children}</SidebarProvider>
       </SetUsersContext.Provider>
     </UsersContext.Provider>
   );

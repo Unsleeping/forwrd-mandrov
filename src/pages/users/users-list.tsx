@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { Plus } from "lucide-react";
-import { useForm, useFieldArray, Form } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { UserRow } from "./user-row";
+import { Form } from "@/components/ui/form";
+// import { UserRow } from "./user-row";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
 
@@ -33,7 +35,11 @@ export default function UserList() {
     // watch,
   } = form;
 
-  const { fields, remove, prepend } = useFieldArray({
+  const {
+    fields,
+    remove,
+    //  prepend
+  } = useFieldArray({
     control,
     name: "users",
   });
@@ -43,15 +49,15 @@ export default function UserList() {
     // reset(values, { keepValues: true });
   };
 
-  const handleAddUser = () => {
-    prepend({
-      id: uuidv4(),
-      name: "",
-      country: "Israel",
-      email: "",
-      phone: "",
-    });
-  };
+  // const handleAddUser = () => {
+  //   prepend({
+  //     id: uuidv4(),
+  //     name: "",
+  //     country: "Israel",
+  //     email: "",
+  //     phone: "",
+  //   });
+  // };
 
   // const watchedUsers = watch("users");
 
@@ -71,17 +77,20 @@ export default function UserList() {
   //   { emptyFields: 0, invalidFields: 0 }
   // );
 
-  const filteredFields = fields.filter((field) =>
-    Object.values(field).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  // const filteredFields = fields.filter((field) =>
+  //   Object.values(field).some((value) =>
+  //     value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  // );
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Users List ({fields.length})</h2>
-        <Button onClick={handleAddUser} className="flex items-center gap-2">
+        {/* <h2 className="text-2xl font-bold">Users List ({fields.length})</h2> */}
+        <Button
+          // onClick={handleAddUser}
+          className="flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" /> Add User
         </Button>
       </div>
@@ -119,7 +128,7 @@ export default function UserList() {
             {isLoading ? (
               <SkeletonRows />
             ) : (
-              filteredFields.map((field, index) => (
+              fields.map((field, index) => (
                 <UserRow
                   key={field.id}
                   index={index}
