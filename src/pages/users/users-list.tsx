@@ -1,38 +1,54 @@
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { UserRoundPlus } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import debounce from "debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { cn, setStorageItem } from "@/lib/utils";
-import { LS_USERS_KEY } from "@/lib/constants";
+import { cn, normalizeData, setStorageItem } from "@/lib/utils";
+import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
 import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
 import { VirtualizedList } from "@/components/virtualized-list";
-import useUsers from "@/hooks/useUsers";
-import useSetUsers from "@/hooks/useSetUsers";
 import useIsLoading from "@/hooks/useIsLoading";
+import useSetAwesomeData from "@/hooks/useSetAwesomeData";
+import useAwesomeData from "@/hooks/useUsers";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // TODO: fix folder structure before submitting
+// TODO: check by knip+extension myabe there are unused files
 
 // TODO: disabled save changed, update values into context
+// TODO: move norm/nenorm data into its own context???? and rename more properly
+
+// TODO: fix bug with searching after adding a new user
+
+// TODO: make a question about remove+save changes
+// TODO: make a question about faster solution or more features
+// TODO: make a question about leave TODO or remove it
+
+// TODO: think about remove id if no useFieldArray used
 
 export default function UserList() {
-  const usersData = useUsers();
+  const awesomeData = useAwesomeData();
   const isLoading = useIsLoading();
-  const setUsersData = useSetUsers();
+  const setUsersData = useSetAwesomeData();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredFields = awesomeData.originalData.filter((field) => {
+    return Object.values(field).some((value) =>
+      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
-    values: { users: usersData },
+    values: { users: filteredFields },
     resetOptions: {
       keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
     },
@@ -40,62 +56,38 @@ export default function UserList() {
 
   const { control } = form;
 
-  const { fields, remove, prepend } = useFieldArray({
-    control,
-    name: "users",
-  });
-
   const onSubmit = (values: FormType) => {
-    setStorageItem(LS_USERS_KEY, values.users);
-    setUsersData(values.users);
+    const awesomeData = normalizeData(values.users);
+    setStorageItem(LS_AWESOME_DATA_KEY, awesomeData);
+    setUsersData(awesomeData);
   };
 
   const handleAddUser = () => {
-    prepend({
-      id: uuidv4(),
+    const newUser = {
+      originalId: uuidv4(),
       name: "",
       country: "Israel",
       email: "",
       phone: "",
-    });
+    };
+
+    // TODO: if add user and not saved changes, after filtering users added user will be removed
+    form.setValue("users", [newUser, ...form.getValues().users]);
   };
 
-  // const errorCounts = watchedUsers.reduce(
-  //   (acc, user, index) => {
-  //     Object.keys(user).forEach((key) => {
-  //       if (key !== "id" && errors.users?.[index]?.[key as keyof User]) {
-  //         if (user[key as keyof User] === "") {
-  //           acc.emptyFields++;
-  //         } else {
-  //           acc.invalidFields++;
-  //         }
-  //       }
-  //     });
-  //     return acc;
-  //   },
-  //   { emptyFields: 0, invalidFields: 0 }
-  // );
-
-  const filteredFields = fields.filter((field) =>
-    Object.values(field).some((value) => {
-      const res = value
-        .toString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      if (res) {
-        // console.log("true, field, value", field, value);
-      }
-      return res;
-    })
-  );
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log("setting searchTerm to: ", e.target.value);
-    setSearchTerm(e.target.value);
+  // TODO: remove doesn't work properly
+  const handleRemoveUser = (originalId: string) => {
+    console.log("🚀 ~ handleRemoveUser ~ originalId:", originalId);
+    form.setValue(
+      "users",
+      form.getValues().users.filter((user) => user.originalId !== originalId)
+    );
   };
 
   const debouncedSearch = useMemo(() => {
-    return debounce(handleSearch, 300);
+    return debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    }, 300);
   }, []);
 
   useEffect(() => {
@@ -107,7 +99,9 @@ export default function UserList() {
   return (
     <div className="p-4 h-full">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Users List ({fields.length})</h2>
+        <h2 className="text-2xl font-bold">
+          Users List ({filteredFields.length})
+        </h2>
         <Input
           type="text"
           placeholder="Search users..."
@@ -116,10 +110,6 @@ export default function UserList() {
         />
       </div>
 
-      {/* <div className="mt-4 mb-4">
-        Errors: Empty Fields - {errorCounts.emptyFields}, Invalid Fields -{" "}
-        {errorCounts.invalidFields}
-      </div> */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -155,7 +145,7 @@ export default function UserList() {
               <VirtualizedList
                 control={control}
                 itemsCount={filteredFields.length}
-                onRemove={remove}
+                onRemove={handleRemoveUser}
                 itemData={filteredFields}
               />
             )}

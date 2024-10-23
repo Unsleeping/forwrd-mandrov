@@ -1,9 +1,13 @@
 import { clsx, type ClassValue } from "clsx";
-import { v4 as uuidv4 } from "uuid";
 import { twMerge } from "tailwind-merge";
 
-import { LS_USERS_KEY } from "@/lib/constants";
-import { UserData, ZodSchemasType } from "@/lib/types";
+import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
+import {
+  AwesomeData,
+  NormalizedUserData,
+  PopulatedUserData,
+  ZodSchemasType,
+} from "@/lib/types";
 import data from "@/data/initialUsersData.json";
 
 export function cn(...inputs: ClassValue[]) {
@@ -42,10 +46,47 @@ function sleep(ms: number, signal?: AbortController["signal"]) {
   });
 }
 
+export const INITIAL_NORMALIZED_DATA = {
+  users: {
+    byOriginalId: {},
+    allOriginalIds: [],
+  },
+  countries: {
+    byOriginalId: {},
+    allOriginalIds: [],
+  },
+};
+
+export function normalizeData(array: PopulatedUserData[]): AwesomeData {
+  const normalizedData: NormalizedUserData = INITIAL_NORMALIZED_DATA;
+
+  array.forEach((item) => {
+    normalizedData.users.byOriginalId[item.originalId] = {
+      originalId: item.originalId,
+      name: item.name,
+      email: item.email,
+      phone: item.phone,
+      country: item.country,
+    };
+
+    normalizedData.users.allOriginalIds.push(item.originalId);
+
+    if (!normalizedData.countries.allOriginalIds.includes(item.originalId)) {
+      normalizedData.countries.byOriginalId[item.originalId] = {
+        originalId: item.originalId,
+        name: item.country,
+      };
+      normalizedData.countries.allOriginalIds.push(item.originalId);
+    }
+  });
+
+  return { normalizedData, originalData: array };
+}
+
 export async function getData(
   signal: AbortController["signal"]
-): Promise<UserData[]> {
-  const lsUsers = getStorageItem<UserData[]>(LS_USERS_KEY);
+): Promise<AwesomeData> {
+  const lsUsers = getStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY);
   await sleep(1000);
   if (lsUsers) {
     console.log("Using cached data...");
@@ -56,9 +97,15 @@ export async function getData(
   // TODO: return to 2000 before prod
   await sleep(100, signal);
   // TODO: normalize data for O(1) lookups
-  const dataWithId = data.map((user) => ({ ...user, id: uuidv4() }));
-  setStorageItem(LS_USERS_KEY, dataWithId);
-  return dataWithId;
+  const dataWithOriginalIds: PopulatedUserData[] = data.map(
+    ({ id, ...rest }) => ({
+      ...rest,
+      originalId: id,
+    })
+  );
+  const awesomeData = normalizeData(dataWithOriginalIds);
+  setStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY, awesomeData);
+  return awesomeData;
 }
 
 export const getErrorMessage = (schema: ZodSchemasType, value: string) => {
@@ -69,4 +116,13 @@ export const getErrorMessage = (schema: ZodSchemasType, value: string) => {
     return errorMessage;
   }
   return "";
+};
+
+export const getAllUsers = (
+  normalizedData: NormalizedUserData
+): PopulatedUserData[] => {
+  return normalizedData.users.allOriginalIds.map((originalId) => {
+    const user = normalizedData.users.byOriginalId[originalId];
+    return user;
+  });
 };

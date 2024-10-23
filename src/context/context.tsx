@@ -1,11 +1,15 @@
 import React, { createContext } from "react";
 
-import { UserData } from "@/lib/types";
+import { AwesomeData } from "@/lib/types";
+import { INITIAL_NORMALIZED_DATA } from "@/lib/utils";
 
-export const UsersContext = createContext<UserData[]>([]);
+export const AwesomeDataContext = createContext<AwesomeData>({
+  normalizedData: INITIAL_NORMALIZED_DATA,
+  originalData: [],
+});
 
-export const SetUsersContext = createContext<
-  React.Dispatch<React.SetStateAction<UserData[]>>
+export const SetAwesomeDataContext = createContext<
+  React.Dispatch<React.SetStateAction<AwesomeData>>
 >(() => {});
 
 export const LoadingContext = createContext<boolean>(false);

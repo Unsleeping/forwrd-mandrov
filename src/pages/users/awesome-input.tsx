@@ -27,6 +27,8 @@ export const AwesomeInput = ({
 
       if (errorMessage) {
         setError(errorMessage);
+      } else if (error) {
+        setError("");
       }
 
       setValue(key, value);
@@ -43,7 +45,6 @@ export const AwesomeInput = ({
       {error && (
         <p className={cn("text-[0.8rem] font-medium text-destructive")}>
           {error}
-          test
         </p>
       )}
     </>

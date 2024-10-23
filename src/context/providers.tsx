@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
 
-import { UserData } from "@/lib/types";
-import { getData } from "@/lib/utils";
+import { AwesomeData } from "@/lib/types";
+import { getData, INITIAL_NORMALIZED_DATA } from "@/lib/utils";
 import {
-  UsersContext,
-  SetUsersContext,
+  AwesomeDataContext,
   LoadingContext,
+  SetAwesomeDataContext,
 } from "@/context/context";
 
 export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
-  const [usersData, setUsersData] = useState<UserData[]>([]);
+  const [awesomeData, setAwesomeData] = useState<AwesomeData>({
+    normalizedData: INITIAL_NORMALIZED_DATA,
+    originalData: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
 
         const data = await getData(abortController.signal);
 
-        setUsersData(data);
+        setAwesomeData(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -37,12 +40,12 @@ export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <UsersContext.Provider value={usersData}>
-      <SetUsersContext.Provider value={setUsersData}>
+    <AwesomeDataContext.Provider value={awesomeData}>
+      <SetAwesomeDataContext.Provider value={setAwesomeData}>
         <LoadingContext.Provider value={isLoading}>
           {children}
         </LoadingContext.Provider>
-      </SetUsersContext.Provider>
-    </UsersContext.Provider>
+      </SetAwesomeDataContext.Provider>
+    </AwesomeDataContext.Provider>
   );
 };

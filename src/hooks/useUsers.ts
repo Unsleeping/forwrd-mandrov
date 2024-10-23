@@ -1,7 +1,7 @@
 import { useContext } from "react";
 
-import { UsersContext } from "@/context/context";
+import { AwesomeDataContext } from "@/context/context";
 
-export default function useUsers() {
-  return useContext(UsersContext);
+export default function useAwesomeData() {
+  return useContext(AwesomeDataContext);
 }

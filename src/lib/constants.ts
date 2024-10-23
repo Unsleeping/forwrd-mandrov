@@ -1,1 +1,1 @@
-export const LS_USERS_KEY = "forwrd-users-data";
+export const LS_AWESOME_DATA_KEY = "forwrd-awesome-data";
