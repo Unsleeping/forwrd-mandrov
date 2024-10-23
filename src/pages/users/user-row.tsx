@@ -33,7 +33,7 @@ export const UserRow = ({
   style,
   formControl,
 }: UserRowProps) => {
-  const { getValues, setValue } = useFormContext();
+  const { getValues, setValue, trigger } = useFormContext();
   const nameKey = `users.${index}.name` as const;
   const countryKey = `users.${index}.country` as const;
   const emailKey = `users.${index}.email` as const;
@@ -43,6 +43,10 @@ export const UserRow = ({
     nameKey: string
   ) => {
     setValue(nameKey, e.target.value);
+  };
+  const handleBlur = () => {
+    // trigger a validation for all fields
+    trigger();
   };
   return (
     <div
@@ -59,6 +63,7 @@ export const UserRow = ({
               <Input
                 defaultValue={getValues(nameKey)}
                 onChange={(e) => handleChange(e, nameKey)}
+                onBlur={handleBlur}
                 placeholder="Name"
               />
             </FormControl>
@@ -102,6 +107,7 @@ export const UserRow = ({
               <Input
                 defaultValue={getValues(emailKey)}
                 onChange={(e) => handleChange(e, emailKey)}
+                onBlur={handleBlur}
                 placeholder="example@email.com"
               />
             </FormControl>
@@ -120,6 +126,7 @@ export const UserRow = ({
               <Input
                 defaultValue={getValues(phoneKey)}
                 onChange={(e) => handleChange(e, phoneKey)}
+                onBlur={handleBlur}
                 placeholder="Phone"
               />
             </FormControl>

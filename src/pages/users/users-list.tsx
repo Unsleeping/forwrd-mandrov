@@ -33,14 +33,12 @@ export default function UserList() {
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     values: { users: usersData },
+    resetOptions: {
+      keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
+    },
   });
 
-  const {
-    control,
-    formState: { errors, dirtyFields },
-  } = form;
-
-  console.log("🚀 ~ UserList ~ errors:", errors);
+  const { control } = form;
 
   const { fields, remove, prepend } = useFieldArray({
     control,
@@ -128,14 +126,7 @@ export default function UserList() {
           // 52px = btn+mb
           className="flex flex-col h-[calc(100%-52px)]"
         >
-          <Button
-            type="submit"
-            className="mb-4 w-fit"
-            disabled={
-              Object.keys(errors).length > 0 ||
-              Object.keys(dirtyFields).length === 0
-            }
-          >
+          <Button type="submit" className="mb-4 w-fit ml-auto">
             Save Changes
           </Button>
           <div
