@@ -2,8 +2,8 @@ import { createContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import data from "@/data/initialUsersData.json";
-
-// TODO: normalize data for O(1) lookups
+import { getStorageItem, setStorageItem } from "@/lib/utils";
+import { LS_USERS_KEY } from "@/lib/constants";
 
 type UserData = {
   id: string;
@@ -27,9 +27,9 @@ export const SetUsersContext = createContext<{
   setUsersData: () => {},
 });
 
-function sleep(ms: number, signal: AbortController["signal"]) {
+function sleep(ms: number, signal?: AbortController["signal"]) {
   return new Promise((resolve, reject) => {
-    signal.addEventListener("abort", async () => {
+    signal?.addEventListener("abort", async () => {
       reject(new Error("Aborted request"));
     });
 
@@ -38,9 +38,20 @@ function sleep(ms: number, signal: AbortController["signal"]) {
 }
 
 async function getData(signal: AbortController["signal"]): Promise<UserData[]> {
+  const lsUsers = getStorageItem<UserData[]>(LS_USERS_KEY);
+  await sleep(1000);
+  if (lsUsers) {
+    console.log("Using cached data...");
+    return lsUsers;
+  }
+
+  console.log("Fetching data from API...");
   // TODO: return to 2000 before prod
   await sleep(100, signal);
-  return data.map((user) => ({ ...user, id: uuidv4() }));
+  // TODO: normalize data for O(1) lookups
+  const dataWithId = data.map((user) => ({ ...user, id: uuidv4() }));
+  setStorageItem(LS_USERS_KEY, dataWithId);
+  return dataWithId;
 }
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
