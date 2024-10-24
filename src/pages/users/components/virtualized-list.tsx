@@ -3,7 +3,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 
 import { FormType, User } from "@/lib/types";
-import { UserRow } from "@/pages/users/user-row";
+import { UserRow } from "@/pages/users/components/user-row";
 import { getListSize } from "@/lib/utils";
 
 type VirtualizedListProps = {

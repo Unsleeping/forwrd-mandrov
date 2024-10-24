@@ -10,11 +10,11 @@ import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
-import { VirtualizedList } from "@/components/virtualized-list";
+import { VirtualizedList } from "@/pages/users/components/virtualized-list";
 import useIsLoading from "@/hooks/useIsLoading";
 import useSetAwesomeData from "@/hooks/useSetAwesomeData";
 import useAwesomeData from "@/hooks/useUsers";
-import Search from "@/pages/users/search";
+import Search from "@/pages/users/components/search";
 import {
   filterUsersBySearchTerm,
   getErrorsAndEmptyFieldsCount,
@@ -22,9 +22,6 @@ import {
 
 // ! explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // ! explain about why i choose normalization instead of denormalization
-
-// TODO: fix folder structure before submitting
-// TODO: check by knip+extension myabe there are unused files
 
 // TODO: - Deploy your code to any platform you wish to be accessible from the web.
 
@@ -35,6 +32,7 @@ export default function UserList() {
   const awesomeData = useAwesomeData();
   const isLoading = useIsLoading();
   const setAwesomeData = useSetAwesomeData();
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredUsers = filterUsersBySearchTerm(
@@ -43,12 +41,11 @@ export default function UserList() {
   );
 
   const formValues = { users: filteredUsers };
-  const formDefaultValues = formValues;
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     values: formValues,
-    defaultValues: formDefaultValues,
+    defaultValues: formValues,
     resetOptions: {
       keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
     },
@@ -103,7 +100,7 @@ export default function UserList() {
     <div className="p-4 h-full">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">
-          Users List ({filteredUsers.length})
+          Users List ({getValues("users").length})
         </h2>
         <Search setSearchTerm={setSearchTerm} />
       </div>
@@ -117,7 +114,7 @@ export default function UserList() {
           <p>{`Errors: Empty Fields - ${emptyFields}, Invalid Fields - ${invalidFields}`}</p>
           <Button
             type="submit"
-            className="mb-4 w-fit ml-auto"
+            className="my-4 w-fit"
             disabled={isSavedBtnDisabled}
           >
             Save Changes

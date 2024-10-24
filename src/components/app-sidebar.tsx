@@ -1,5 +1,6 @@
 import * as React from "react";
-import { ChartNoAxesCombined, Users } from "lucide-react";
+import { ChartNoAxesCombined, House, Users } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 import logoSrc from "@/assets/logo.svg";
 
@@ -14,7 +15,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavLink } from "react-router-dom";
 
 const data = {
   user: {
@@ -24,6 +24,11 @@ const data = {
   },
 
   pages: [
+    {
+      name: "Welcome",
+      url: "/",
+      icon: House,
+    },
     {
       name: "Users",
       url: "/users",

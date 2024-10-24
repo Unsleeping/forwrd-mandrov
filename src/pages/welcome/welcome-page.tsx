@@ -1,11 +1,16 @@
-import React from "react";
 import { motion } from "framer-motion";
-import { AuroraBackground } from "@/components/ui/aurora-background";
 import { useNavigate } from "react-router-dom";
+
+import { AuroraBackground } from "@/components/ui/aurora-background";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 
-const WelcomePage: React.FC = () => {
+const WelcomePage = () => {
   const navigation = useNavigate();
+
+  const handleNavigateToUsers = () => {
+    navigation("/users");
+  };
+
   return (
     <AuroraBackground>
       <motion.div
@@ -30,9 +35,7 @@ const WelcomePage: React.FC = () => {
             containerClassName="rounded-full"
             as="button"
             className="dark:bg-black bg-zinc-100 text-black dark:text-white flex items-center space-x-2"
-            onClick={() => {
-              navigation("/users");
-            }}
+            onClick={handleNavigateToUsers}
           >
             Get started
           </HoverBorderGradient>

@@ -1,5 +1,6 @@
-import { FormType, User } from "@/lib/types";
 import { FieldErrors } from "react-hook-form";
+
+import { FormType, User } from "@/lib/types";
 
 export const filterUsersBySearchTerm = (users: User[], searchTerm: string) => {
   return users.filter((field) => {

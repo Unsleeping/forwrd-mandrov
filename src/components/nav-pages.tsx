@@ -1,4 +1,5 @@
 import { type LucideIcon } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 import {
   SidebarGroup,
@@ -7,17 +8,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavLink } from "react-router-dom";
 
-export function NavPages({
-  pages,
-}: {
+type NavPagesProps = {
   pages: {
     name: string;
     url: string;
     icon: LucideIcon;
   }[];
-}) {
+};
+
+export function NavPages({ pages }: NavPagesProps) {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Pages</SidebarGroupLabel>
