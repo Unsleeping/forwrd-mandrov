@@ -20,19 +20,37 @@ import useSetAwesomeData from "@/hooks/useSetAwesomeData";
 import useAwesomeData from "@/hooks/useUsers";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
+// TODO: explain about why i choose normalization instead of denormalization
+
 // TODO: fix folder structure before submitting
 // TODO: check by knip+extension myabe there are unused files
 
 // TODO: disabled save changed, update values into context
-// TODO: move norm/nenorm data into its own context???? and rename more properly
 
 // TODO: fix bug with searching after adding a new user
 
-// TODO: make a question about remove+save changes
-// TODO: make a question about faster solution or more features
 // TODO: make a question about leave TODO or remove it
 
-// TODO: think about remove id if no useFieldArray used
+// TODO: think about remove id/originalId if no useFieldArray used
+
+// TODO: Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count.
+
+// TODO: Render a separate container beneath the users container and above the save button, which includes information counting the error types, like so: (you can design this as you wish) `"Errors: Empty Fields - 2, Invalid Fields - 5"`
+
+// TODO:   - Save button should be disabled if there is at least one error, or if there is at least one empty field (on blur on a new row - empty fields are marked as error)
+
+// TODO: - Successful save => updates the shared global state (as mentioned before) and local error states should be reset
+
+// TODO - Pay attention when you implement row deletion, take care also of it's errors if it had any.
+
+// TODO: ### Statistics Page
+// - Render a pie chart of the countries (each piece in the pie is a country from the options that we have) - and visualize how many users are from each country. The biggest piece in the pie would be the country with the largest amount of users (the updated amount that is currently saved on our context, after the latest changes on Users List)
+// - You can use any solution you prefer for the chart, any chart library you know (for example, Chart.js is an open-source library that is really simple to use) or even some js-css solution. Note that there is no library currently installed in the project for that. Feel free to install any library of your choosing.
+// - If you don't manage to show the data in a graphic solution as a pie chart, or you don't have enough time, the minimum requirement is to render a list of the countries we have - and render near each country a number of how many users are from this country.
+
+// TODO: - Deploy your code to any platform you wish to be accessible from the web.
+
+//TODO: if country counts more, what do with color?
 
 export default function UserList() {
   const awesomeData = useAwesomeData();
@@ -54,7 +72,7 @@ export default function UserList() {
     },
   });
 
-  const { control } = form;
+  const { control, getValues, setValue } = form;
 
   const onSubmit = (values: FormType) => {
     const awesomeData = normalizeData(values.users);
@@ -72,15 +90,15 @@ export default function UserList() {
     };
 
     // TODO: if add user and not saved changes, after filtering users added user will be removed
-    form.setValue("users", [newUser, ...form.getValues().users]);
+    setValue("users", [newUser, ...getValues().users]);
   };
 
   // TODO: remove doesn't work properly
   const handleRemoveUser = (originalId: string) => {
     console.log("🚀 ~ handleRemoveUser ~ originalId:", originalId);
-    form.setValue(
+    setValue(
       "users",
-      form.getValues().users.filter((user) => user.originalId !== originalId)
+      getValues().users.filter((user) => user.originalId !== originalId)
     );
   };
 
