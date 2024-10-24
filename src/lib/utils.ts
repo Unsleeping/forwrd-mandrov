@@ -109,3 +109,10 @@ export const getErrorMessage = (schema: ZodSchemasType, value: string) => {
   }
   return "";
 };
+
+export const getListSize = () => {
+  if (window.innerWidth < 648) {
+    return 393;
+  }
+  return 90;
+};

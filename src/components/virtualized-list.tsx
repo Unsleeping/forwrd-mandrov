@@ -1,24 +1,16 @@
-import { Control, FieldArrayWithId } from "react-hook-form";
+import { Control } from "react-hook-form";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { VariableSizeList } from "react-window";
+import { FixedSizeList } from "react-window";
 
-import { FormType } from "@/lib/types";
+import { FormType, User } from "@/lib/types";
 import { UserRow } from "@/pages/users/user-row";
-
-const getSize = () => {
-  if (window.innerWidth < 648) {
-    return 393;
-  }
-  return 90;
-};
-
-type ItemDataType = FieldArrayWithId<FormType, "users", "id">[];
+import { getListSize } from "@/lib/utils";
 
 type VirtualizedListProps = {
   itemsCount: number;
   control: Control<FormType>;
-  onRemove: (idx: number) => void;
-  itemData: ItemDataType;
+  onRemove: (index: number) => void;
+  itemData: User[];
 };
 
 export const VirtualizedList = ({
@@ -30,23 +22,25 @@ export const VirtualizedList = ({
   <div>
     <AutoSizer>
       {({ height, width }) => (
-        <VariableSizeList
+        <FixedSizeList
           height={height}
           itemCount={itemsCount}
           // TODO: fix bug with resize
-          itemSize={() => getSize()}
+          itemSize={getListSize()}
           width={width}
           itemData={itemData}
+          itemKey={(index, data) => data[index].id}
         >
-          {({ index, style }) => (
+          {({ data, index, style }) => (
             <UserRow
+              key={`user-row-${data[index].id}`}
               index={index}
               style={style}
               onRemove={() => onRemove(index)}
               formControl={control}
             />
           )}
-        </VariableSizeList>
+        </FixedSizeList>
       )}
     </AutoSizer>
   </div>
