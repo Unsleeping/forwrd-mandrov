@@ -21,26 +21,24 @@ export const AwesomeInput = ({
     getErrorMessage(schema, getValues(inputKey))
   );
 
-  const onChangeFactory =
-    (key: string, schema: ZodSchemasType) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const errorMessage = getErrorMessage(schema, value);
+  const validate = (value: string) => {
+    const errorMessageOrEmptyString = getErrorMessage(schema, value);
+    setError(errorMessageOrEmptyString);
+  };
 
-      if (errorMessage) {
-        setError(errorMessage);
-      } else if (error) {
-        setError("");
-      }
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
 
-      setValue(key, value);
-    };
+    validate(value);
+
+    setValue(inputKey, value);
+  };
 
   return (
     <>
       <Input
         defaultValue={getValues(inputKey)}
-        onChange={onChangeFactory(inputKey, schema)}
+        onChange={onChange}
         placeholder={placeholder}
       />
       {/* TODO: think about more beautiful display the error */}
