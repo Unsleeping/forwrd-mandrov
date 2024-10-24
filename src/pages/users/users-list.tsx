@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn, normalizeData, setStorageItem } from "@/lib/utils";
 import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
 import { formSchema } from "@/lib/schemas";
-import { FormType, User } from "@/lib/types";
+import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
 import { VirtualizedList } from "@/components/virtualized-list";
@@ -16,7 +16,7 @@ import useIsLoading from "@/hooks/useIsLoading";
 import useSetAwesomeData from "@/hooks/useSetAwesomeData";
 import useAwesomeData from "@/hooks/useUsers";
 import Search from "@/pages/users/search";
-import { filterUsersBySearchTerm } from "./utils";
+import { filterUsersBySearchTerm, getErrorsAndEmptyFieldsCount } from "./utils";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // TODO: explain about why i choose normalization instead of denormalization
@@ -35,11 +35,6 @@ import { filterUsersBySearchTerm } from "./utils";
 // TODO: - Successful save => updates the shared global state (as mentioned before) and local error states should be reset
 
 // TODO - Pay attention when you implement row deletion, take care also of it's errors if it had any.
-
-// TODO: ### Statistics Page
-// - Render a pie chart of the countries (each piece in the pie is a country from the options that we have) - and visualize how many users are from each country. The biggest piece in the pie would be the country with the largest amount of users (the updated amount that is currently saved on our context, after the latest changes on Users List)
-// - You can use any solution you prefer for the chart, any chart library you know (for example, Chart.js is an open-source library that is really simple to use) or even some js-css solution. Note that there is no library currently installed in the project for that. Feel free to install any library of your choosing.
-// - If you don't manage to show the data in a graphic solution as a pie chart, or you don't have enough time, the minimum requirement is to render a list of the countries we have - and render near each country a number of how many users are from this country.
 
 // TODO: - Deploy your code to any platform you wish to be accessible from the web.
 
@@ -101,24 +96,13 @@ export default function UserList() {
     );
   };
 
-  const errorCounts = formValues.users.reduce(
-    (acc, user, index) => {
-      Object.keys(user).forEach((key) => {
-        if (errors.users?.[index]?.[key as keyof User]) {
-          if (getValues(`users.${index}.${key as keyof User}`) === "") {
-            acc.emptyFields++;
-          } else {
-            acc.invalidFields++;
-          }
-        }
-      });
-      return acc;
-    },
-    { emptyFields: 0, invalidFields: 0 }
+  const { emptyFields, invalidFields } = getErrorsAndEmptyFieldsCount(
+    formValues.users,
+    errors,
+    getValues
   );
 
-  const isSavedBtnDisabled =
-    errorCounts.emptyFields !== 0 || errorCounts.invalidFields !== 0;
+  const isSavedBtnDisabled = emptyFields !== 0 || invalidFields !== 0;
 
   return (
     <div className="p-4 h-full">
@@ -135,7 +119,7 @@ export default function UserList() {
           // 52px = btn+mb
           className="flex flex-col h-[calc(100%-52px)]"
         >
-          <p>{`Errors: Empty Fields - ${errorCounts.emptyFields}, Invalid Fields - ${errorCounts.invalidFields}`}</p>
+          <p>{`Errors: Empty Fields - ${emptyFields}, Invalid Fields - ${invalidFields}`}</p>
           <Button
             type="submit"
             className="mb-4 w-fit ml-auto"

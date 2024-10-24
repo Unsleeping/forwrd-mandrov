@@ -5,7 +5,7 @@ import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
 import {
   AwesomeData,
   NormalizedUserData,
-  UserData,
+  User,
   ZodSchemasType,
 } from "@/lib/types";
 import data from "@/data/initialUsersData.json";
@@ -57,7 +57,7 @@ export const INITIAL_NORMALIZED_DATA = {
   },
 };
 
-export function normalizeData(array: UserData[]): AwesomeData {
+export function normalizeData(array: User[]): AwesomeData {
   const normalizedData: NormalizedUserData = INITIAL_NORMALIZED_DATA;
 
   array.forEach((item) => {

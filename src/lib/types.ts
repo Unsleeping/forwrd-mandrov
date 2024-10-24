@@ -5,24 +5,16 @@ export type User = z.infer<typeof userSchema>;
 
 export type FormType = z.infer<typeof formSchema>;
 
-export type UserData = {
-  id: string;
-  name: string;
-  country: string;
-  email: string;
-  phone: string;
-};
-
 export type AwesomeData = {
   normalizedData: NormalizedUserData;
-  originalData: UserData[];
+  originalData: User[];
 };
 
 export type ZodSchemasType = ZodString | ZodEffects<ZodString, string, string>;
 
 export type NormalizedUserData = {
   users: {
-    byId: Record<string, UserData>;
+    byId: Record<string, User>;
     allIds: string[];
   };
   countries: {
