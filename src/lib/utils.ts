@@ -83,6 +83,10 @@ export function normalizeData(array: User[]): AwesomeData {
   return { normalizedData, originalData: array };
 }
 
+export const persistAwesomeData = (data: AwesomeData) => {
+  setStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY, data);
+};
+
 export async function getData(
   signal: AbortController["signal"]
 ): Promise<AwesomeData> {
@@ -96,7 +100,7 @@ export async function getData(
   console.log("Fetching data from API...");
   await sleep(2000, signal);
   const awesomeData = normalizeData(data);
-  setStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY, awesomeData);
+  persistAwesomeData(awesomeData);
   return awesomeData;
 }
 

@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { cn, normalizeData, setStorageItem } from "@/lib/utils";
-import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
+import { cn, normalizeData, persistAwesomeData } from "@/lib/utils";
 import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
@@ -35,7 +34,7 @@ import {
 export default function UserList() {
   const awesomeData = useAwesomeData();
   const isLoading = useIsLoading();
-  const setUsersData = useSetAwesomeData();
+  const setAwesomeData = useSetAwesomeData();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredUsers = filterUsersBySearchTerm(
@@ -65,8 +64,8 @@ export default function UserList() {
 
   const onSubmit = (values: FormType) => {
     const awesomeData = normalizeData(values.users);
-    setStorageItem(LS_AWESOME_DATA_KEY, awesomeData);
-    setUsersData(awesomeData);
+    persistAwesomeData(awesomeData);
+    setAwesomeData(awesomeData);
   };
 
   const handleAddUser = () => {
