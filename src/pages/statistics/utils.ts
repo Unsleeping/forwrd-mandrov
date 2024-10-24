@@ -4,6 +4,7 @@ import countries from "@/data/countries.json";
 export const preparePieChartData = (data: AwesomeData) => {
   const originalData = data.originalData;
   const countries = new Set(originalData.map((user) => user.country));
+
   const countriesWithUsers = Array.from(countries).map((country) => ({
     country,
     users: originalData.filter((user) => user.country === country).length,
@@ -12,7 +13,7 @@ export const preparePieChartData = (data: AwesomeData) => {
   return countriesWithUsers.sort((a, b) => b.users - a.users);
 };
 
-//TODO: if country counts more, what do with color?
+//TODO: for more country generate more colors
 function generateColors(): string[] {
   return [
     "#FF6B6B", // Bright Red

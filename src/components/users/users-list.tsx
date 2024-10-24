@@ -10,11 +10,11 @@ import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
-import { VirtualizedList } from "@/pages/users/components/virtualized-list";
+import { VirtualizedList } from "@/components/users/virtualized-list";
 import useIsLoading from "@/hooks/useIsLoading";
 import useSetAwesomeData from "@/hooks/useSetAwesomeData";
 import useAwesomeData from "@/hooks/useUsers";
-import Search from "@/pages/users/components/search";
+import Search from "@/components/users/search";
 import {
   filterUsersBySearchTerm,
   getErrorsAndEmptyFieldsCount,

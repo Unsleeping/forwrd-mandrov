@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormType } from "@/lib/types";
 import { emailSchema, nameSchema, phoneSchema } from "@/lib/schemas";
-import { AwesomeInput } from "@/pages/users/components/awesome-input";
+import { AwesomeInput } from "@/components/users/awesome-input";
 
 type UserRowProps = {
   index: number;

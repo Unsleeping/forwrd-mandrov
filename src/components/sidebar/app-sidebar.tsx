@@ -4,8 +4,8 @@ import { NavLink } from "react-router-dom";
 
 import logoSrc from "@/assets/logo.svg";
 
-import { NavPages } from "@/components/nav-pages";
-import { NavUser } from "@/components/nav-user";
+import { NavPages } from "@/components/sidebar/nav-pages";
+import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
   SidebarContent,
