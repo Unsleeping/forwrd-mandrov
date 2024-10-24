@@ -20,7 +20,7 @@ export const phoneSchema = z
   .regex(/^\+[^+]*$/, "Phone must start with '+' and contain only one '+'");
 
 export const userSchema = z.object({
-  originalId: z.string(),
+  id: z.string(),
   name: nameSchema,
   country: z.enum(countries as [string, ...string[]], {
     required_error: "Country is required",

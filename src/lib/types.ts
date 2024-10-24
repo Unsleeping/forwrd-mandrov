@@ -5,32 +5,28 @@ export type User = z.infer<typeof userSchema>;
 
 export type FormType = z.infer<typeof formSchema>;
 
-type UserData = {
-  // this one will be replaced with useFieldArray
+export type UserData = {
   id: string;
   name: string;
   country: string;
   email: string;
   phone: string;
-  originalId: string;
 };
 
 export type AwesomeData = {
   normalizedData: NormalizedUserData;
-  originalData: PopulatedUserData[];
+  originalData: UserData[];
 };
-
-export type PopulatedUserData = Omit<UserData, "id">;
 
 export type ZodSchemasType = ZodString | ZodEffects<ZodString, string, string>;
 
 export type NormalizedUserData = {
   users: {
-    byOriginalId: Record<string, PopulatedUserData>;
-    allOriginalIds: string[];
+    byId: Record<string, UserData>;
+    allIds: string[];
   };
   countries: {
-    byOriginalId: Record<string, { originalId: string; name: string }>;
-    allOriginalIds: string[];
+    byId: Record<string, { id: string; name: string }>;
+    allIds: string[];
   };
 };

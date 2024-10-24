@@ -52,7 +52,7 @@ export const UserRow = ({
             <FormLabel className="max-sm:flex hidden">Name</FormLabel>
             <FormControl>
               <AwesomeInput
-                propsedKey={nameKey}
+                inputKey={nameKey}
                 schema={nameSchema}
                 placeholder="Name"
               />
@@ -93,7 +93,7 @@ export const UserRow = ({
             <FormLabel className="max-sm:flex hidden">Email</FormLabel>
             <FormControl>
               <AwesomeInput
-                propsedKey={emailKey}
+                inputKey={emailKey}
                 schema={emailSchema}
                 placeholder="example@email.com"
               />
@@ -110,7 +110,7 @@ export const UserRow = ({
             <FormLabel className="max-sm:flex hidden">Phone</FormLabel>
             <FormControl>
               <AwesomeInput
-                propsedKey={phoneKey}
+                inputKey={phoneKey}
                 schema={phoneSchema}
                 placeholder="Phone"
               />

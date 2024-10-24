@@ -5,18 +5,20 @@ import { Input } from "@/components/ui/input";
 import { ZodSchemasType } from "@/lib/types";
 import { cn, getErrorMessage } from "@/lib/utils";
 
-export const AwesomeInput = ({
-  propsedKey,
-  schema,
-  placeholder,
-}: {
-  propsedKey: string;
+type AwesomeInputProps = {
+  inputKey: string;
   schema: ZodSchemasType;
   placeholder: string;
-}) => {
+};
+
+export const AwesomeInput = ({
+  inputKey,
+  schema,
+  placeholder,
+}: AwesomeInputProps) => {
   const { getValues, setValue } = useFormContext();
   const [error, setError] = useState<string>(
-    getErrorMessage(schema, getValues(propsedKey))
+    getErrorMessage(schema, getValues(inputKey))
   );
 
   const onChangeFactory =
@@ -37,8 +39,8 @@ export const AwesomeInput = ({
   return (
     <>
       <Input
-        defaultValue={getValues(propsedKey)}
-        onChange={onChangeFactory(propsedKey, schema)}
+        defaultValue={getValues(inputKey)}
+        onChange={onChangeFactory(inputKey, schema)}
         placeholder={placeholder}
       />
       {/* TODO: think about more beautiful display the error */}

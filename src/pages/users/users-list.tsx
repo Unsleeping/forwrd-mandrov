@@ -1,23 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { UserRoundPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
-import debounce from "debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
 import { cn, normalizeData, setStorageItem } from "@/lib/utils";
 import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
 import { formSchema } from "@/lib/schemas";
-import { FormType } from "@/lib/types";
+import { FormType, User } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
 import { VirtualizedList } from "@/components/virtualized-list";
 import useIsLoading from "@/hooks/useIsLoading";
 import useSetAwesomeData from "@/hooks/useSetAwesomeData";
 import useAwesomeData from "@/hooks/useUsers";
+import Search from "@/pages/users/search";
+import { filterUsersBySearchTerm } from "./utils";
 
 // TODO: explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // TODO: explain about why i choose normalization instead of denormalization
@@ -25,13 +24,7 @@ import useAwesomeData from "@/hooks/useUsers";
 // TODO: fix folder structure before submitting
 // TODO: check by knip+extension myabe there are unused files
 
-// TODO: disabled save changed, update values into context
-
 // TODO: fix bug with searching after adding a new user
-
-// TODO: make a question about leave TODO or remove it
-
-// TODO: think about remove id/originalId if no useFieldArray used
 
 // TODO: Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count.
 
@@ -58,21 +51,28 @@ export default function UserList() {
   const setUsersData = useSetAwesomeData();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredFields = awesomeData.originalData.filter((field) => {
-    return Object.values(field).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  const filteredUsers = filterUsersBySearchTerm(
+    awesomeData.originalData,
+    searchTerm
+  );
+
+  const formValues = { users: filteredUsers };
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
-    values: { users: filteredFields },
+    values: formValues,
+    defaultValues: formValues,
     resetOptions: {
       keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
     },
   });
 
-  const { control, getValues, setValue } = form;
+  const {
+    control,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = form;
 
   const onSubmit = (values: FormType) => {
     const awesomeData = normalizeData(values.users);
@@ -82,7 +82,7 @@ export default function UserList() {
 
   const handleAddUser = () => {
     const newUser = {
-      originalId: uuidv4(),
+      id: uuidv4(),
       name: "",
       country: "Israel",
       email: "",
@@ -94,38 +94,39 @@ export default function UserList() {
   };
 
   // TODO: remove doesn't work properly
-  const handleRemoveUser = (originalId: string) => {
-    console.log("🚀 ~ handleRemoveUser ~ originalId:", originalId);
+  const handleRemoveUser = (id: string) => {
     setValue(
       "users",
-      getValues().users.filter((user) => user.originalId !== originalId)
+      getValues().users.filter((user) => user.id !== id)
     );
   };
 
-  const debouncedSearch = useMemo(() => {
-    return debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
-    }, 300);
-  }, []);
+  const errorCounts = formValues.users.reduce(
+    (acc, user, index) => {
+      Object.keys(user).forEach((key) => {
+        if (errors.users?.[index]?.[key as keyof User]) {
+          if (getValues(`users.${index}.${key as keyof User}`) === "") {
+            acc.emptyFields++;
+          } else {
+            acc.invalidFields++;
+          }
+        }
+      });
+      return acc;
+    },
+    { emptyFields: 0, invalidFields: 0 }
+  );
 
-  useEffect(() => {
-    return () => {
-      debouncedSearch.clear();
-    };
-  }, [debouncedSearch]);
+  const isSavedBtnDisabled =
+    errorCounts.emptyFields !== 0 || errorCounts.invalidFields !== 0;
 
   return (
     <div className="p-4 h-full">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">
-          Users List ({filteredFields.length})
+          Users List ({filteredUsers.length})
         </h2>
-        <Input
-          type="text"
-          placeholder="Search users..."
-          onChange={debouncedSearch}
-          className="max-w-60"
-        />
+        <Search setSearchTerm={setSearchTerm} />
       </div>
 
       <Form {...form}>
@@ -134,7 +135,12 @@ export default function UserList() {
           // 52px = btn+mb
           className="flex flex-col h-[calc(100%-52px)]"
         >
-          <Button type="submit" className="mb-4 w-fit ml-auto">
+          <p>{`Errors: Empty Fields - ${errorCounts.emptyFields}, Invalid Fields - ${errorCounts.invalidFields}`}</p>
+          <Button
+            type="submit"
+            className="mb-4 w-fit ml-auto"
+            disabled={isSavedBtnDisabled}
+          >
             Save Changes
           </Button>
           <div
@@ -162,9 +168,9 @@ export default function UserList() {
             ) : (
               <VirtualizedList
                 control={control}
-                itemsCount={filteredFields.length}
+                itemsCount={filteredUsers.length}
                 onRemove={handleRemoveUser}
-                itemData={filteredFields}
+                itemData={filteredUsers}
               />
             )}
           </div>

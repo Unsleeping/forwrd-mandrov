@@ -5,7 +5,7 @@ import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
 import {
   AwesomeData,
   NormalizedUserData,
-  PopulatedUserData,
+  UserData,
   ZodSchemasType,
 } from "@/lib/types";
 import data from "@/data/initialUsersData.json";
@@ -48,35 +48,35 @@ function sleep(ms: number, signal?: AbortController["signal"]) {
 
 export const INITIAL_NORMALIZED_DATA = {
   users: {
-    byOriginalId: {},
-    allOriginalIds: [],
+    byId: {},
+    allIds: [],
   },
   countries: {
-    byOriginalId: {},
-    allOriginalIds: [],
+    byId: {},
+    allIds: [],
   },
 };
 
-export function normalizeData(array: PopulatedUserData[]): AwesomeData {
+export function normalizeData(array: UserData[]): AwesomeData {
   const normalizedData: NormalizedUserData = INITIAL_NORMALIZED_DATA;
 
   array.forEach((item) => {
-    normalizedData.users.byOriginalId[item.originalId] = {
-      originalId: item.originalId,
+    normalizedData.users.byId[item.id] = {
+      id: item.id,
       name: item.name,
       email: item.email,
       phone: item.phone,
       country: item.country,
     };
 
-    normalizedData.users.allOriginalIds.push(item.originalId);
+    normalizedData.users.allIds.push(item.id);
 
-    if (!normalizedData.countries.allOriginalIds.includes(item.originalId)) {
-      normalizedData.countries.byOriginalId[item.originalId] = {
-        originalId: item.originalId,
+    if (!normalizedData.countries.allIds.includes(item.id)) {
+      normalizedData.countries.byId[item.id] = {
+        id: item.id,
         name: item.country,
       };
-      normalizedData.countries.allOriginalIds.push(item.originalId);
+      normalizedData.countries.allIds.push(item.id);
     }
   });
 
@@ -94,16 +94,8 @@ export async function getData(
   }
 
   console.log("Fetching data from API...");
-  // TODO: return to 2000 before prod
-  await sleep(100, signal);
-  // TODO: normalize data for O(1) lookups
-  const dataWithOriginalIds: PopulatedUserData[] = data.map(
-    ({ id, ...rest }) => ({
-      ...rest,
-      originalId: id,
-    })
-  );
-  const awesomeData = normalizeData(dataWithOriginalIds);
+  await sleep(2000, signal);
+  const awesomeData = normalizeData(data);
   setStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY, awesomeData);
   return awesomeData;
 }
@@ -116,13 +108,4 @@ export const getErrorMessage = (schema: ZodSchemasType, value: string) => {
     return errorMessage;
   }
   return "";
-};
-
-export const getAllUsers = (
-  normalizedData: NormalizedUserData
-): PopulatedUserData[] => {
-  return normalizedData.users.allOriginalIds.map((originalId) => {
-    const user = normalizedData.users.byOriginalId[originalId];
-    return user;
-  });
 };
