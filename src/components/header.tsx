@@ -17,6 +17,10 @@ const Header = () => {
   const isHomePage = pathname === "/";
   const isUsersPage = pathname === "/users";
 
+  if (isHomePage) {
+    return null;
+  }
+
   return (
     <header className="flex h-16 shrink-0 items-center gap-2">
       <div className="flex items-center gap-2 px-4">
@@ -27,16 +31,13 @@ const Header = () => {
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            {!isHomePage && (
-              <>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    {isUsersPage ? "Users" : "Statistics"}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </>
-            )}
+
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {isUsersPage ? "Users" : "Statistics"}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
