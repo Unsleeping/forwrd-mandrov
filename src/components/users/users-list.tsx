@@ -18,7 +18,7 @@ import Search from "@/components/users/search";
 import {
   filterUsersBySearchTerm,
   getErrorsAndEmptyFieldsCount,
-} from "@/pages/users/utils";
+} from "@/_pages/users/utils";
 
 // ! explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // ! explain about why i choose normalization instead of denormalization

@@ -1,6 +1,6 @@
 import useAwesomeData from "@/hooks/useUsers";
 import ChartTable from "@/components/statistics/chart-table";
-import { preparePieChartData } from "@/pages/statistics/utils";
+import { preparePieChartData } from "@/_pages/statistics/utils";
 
 const StatisticsPage = () => {
   const awesomeData = useAwesomeData();

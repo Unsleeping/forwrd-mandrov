@@ -20,7 +20,7 @@ import {
   ChartLegend,
   ChartTooltip,
 } from "@/components/ui/chart";
-import { colorMap } from "@/pages/statistics/utils";
+import { colorMap } from "@/_pages/statistics/utils";
 
 export default function ChartTable({
   dataForChart,
