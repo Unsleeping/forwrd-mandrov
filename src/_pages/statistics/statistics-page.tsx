@@ -1,13 +1,13 @@
-import useAwesomeData from "@/hooks/useUsers";
 import ChartTable from "@/components/statistics/chart-table";
 import { preparePieChartData } from "@/_pages/statistics/utils";
+import useUserData from "@/hooks/useUserData";
 
 const StatisticsPage = () => {
-  const awesomeData = useAwesomeData();
+  const usersData = useUserData();
 
   return (
     <section className="max-w-3xl mx-auto py-5">
-      <ChartTable dataForChart={preparePieChartData(awesomeData)} />
+      <ChartTable dataForChart={preparePieChartData(usersData)} />
     </section>
   );
 };

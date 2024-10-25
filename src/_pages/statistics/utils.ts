@@ -1,13 +1,12 @@
-import { AwesomeData } from "@/lib/types";
+import { UserData } from "@/lib/types";
 import countries from "@/data/countries.json";
 
-export const preparePieChartData = (data: AwesomeData) => {
-  const originalData = data.originalData;
-  const countries = new Set(originalData.map((user) => user.country));
+export const preparePieChartData = (data: UserData) => {
+  const countries = new Set(data.map((user) => user.country));
 
   const countriesWithUsers = Array.from(countries).map((country) => ({
     country,
-    users: originalData.filter((user) => user.country === country).length,
+    users: data.filter((user) => user.country === country).length,
   }));
 
   return countriesWithUsers.sort((a, b) => b.users - a.users);

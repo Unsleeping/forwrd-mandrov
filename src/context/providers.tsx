@@ -1,18 +1,36 @@
 import { useState, useEffect } from "react";
 
-import { AwesomeData } from "@/lib/types";
-import { getData, INITIAL_NORMALIZED_DATA } from "@/lib/utils";
+import { NormalizedUserData, UserData } from "@/lib/types";
+import { getData, normalizeData } from "@/lib/utils";
 import {
-  AwesomeDataContext,
+  UserDataContext,
   LoadingContext,
-  SetAwesomeDataContext,
+  SetUserDataContext,
+  NormalizedContext,
+  SetNormalizedContext,
 } from "@/context/context";
+import useUserData from "@/hooks/useUserData";
 
-export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
-  const [awesomeData, setAwesomeData] = useState<AwesomeData>({
-    normalizedData: INITIAL_NORMALIZED_DATA,
-    originalData: [],
-  });
+type ProviderProps = {
+  children: React.ReactNode;
+};
+
+const NormalizedProvider = ({ children }: ProviderProps) => {
+  const userData = useUserData();
+  const [normalizedData, setNormalizedData] = useState<NormalizedUserData>(
+    normalizeData(userData)
+  );
+  return (
+    <NormalizedContext.Provider value={normalizedData}>
+      <SetNormalizedContext.Provider value={setNormalizedData}>
+        {children}
+      </SetNormalizedContext.Provider>
+    </NormalizedContext.Provider>
+  );
+};
+
+const StoreProvider = ({ children }: ProviderProps) => {
+  const [userData, setUserData] = useState<UserData>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -24,7 +42,7 @@ export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
 
         const data = await getData(abortController.signal);
 
-        setAwesomeData(data);
+        setUserData(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -40,12 +58,20 @@ export const StoreProviders = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AwesomeDataContext.Provider value={awesomeData}>
-      <SetAwesomeDataContext.Provider value={setAwesomeData}>
+    <UserDataContext.Provider value={userData}>
+      <SetUserDataContext.Provider value={setUserData}>
         <LoadingContext.Provider value={isLoading}>
           {children}
         </LoadingContext.Provider>
-      </SetAwesomeDataContext.Provider>
-    </AwesomeDataContext.Provider>
+      </SetUserDataContext.Provider>
+    </UserDataContext.Provider>
+  );
+};
+
+export const AllContextsProviders = ({ children }: ProviderProps) => {
+  return (
+    <StoreProvider>
+      <NormalizedProvider>{children}</NormalizedProvider>
+    </StoreProvider>
   );
 };

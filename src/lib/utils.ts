@@ -1,14 +1,15 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { LS_AWESOME_DATA_KEY } from "@/lib/constants";
+import { LS_USER_DATA_KEY } from "@/lib/constants";
 import {
-  AwesomeData,
+  UserData,
   NormalizedUserData,
   User,
   ZodSchemasType,
 } from "@/lib/types";
 import data from "@/data/initialUsersData.json";
+import { emailSchema, nameSchema, phoneSchema } from "./schemas";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -57,19 +58,36 @@ export const INITIAL_NORMALIZED_DATA = {
   },
 };
 
-export function normalizeData(array: User[]): AwesomeData {
+export function normalizeData(array: User[]): NormalizedUserData {
   const normalizedData: NormalizedUserData = INITIAL_NORMALIZED_DATA;
 
   array.forEach((item) => {
-    normalizedData.users.byId[item.id] = {
-      id: item.id,
-      name: item.name,
-      email: item.email,
-      phone: item.phone,
-      country: item.country,
-    };
+    if (!normalizedData.users.allIds.includes(item.id)) {
+      normalizedData.users.byId[item.id] = {
+        id: item.id,
+        country: item.country,
+        name: {
+          value: item.name,
+          isEmpty: item.name === "",
+          isInvalid:
+            item.name !== "" && !nameSchema.safeParse(item.name).success,
+        },
+        email: {
+          value: item.email,
+          isEmpty: item.email === "",
+          isInvalid:
+            item.email !== "" && !emailSchema.safeParse(item.email).success,
+        },
+        phone: {
+          value: item.phone,
+          isEmpty: item.phone === "",
+          isInvalid:
+            item.phone !== "" && !phoneSchema.safeParse(item.phone).success,
+        },
+      };
 
-    normalizedData.users.allIds.push(item.id);
+      normalizedData.users.allIds.push(item.id);
+    }
 
     if (!normalizedData.countries.allIds.includes(item.id)) {
       normalizedData.countries.byId[item.id] = {
@@ -80,17 +98,17 @@ export function normalizeData(array: User[]): AwesomeData {
     }
   });
 
-  return { normalizedData, originalData: array };
+  return normalizedData;
 }
 
-export const persistAwesomeData = (data: AwesomeData) => {
-  setStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY, data);
+export const persistUserData = (data: UserData) => {
+  setStorageItem<UserData>(LS_USER_DATA_KEY, data);
 };
 
 export async function getData(
   signal: AbortController["signal"]
-): Promise<AwesomeData> {
-  const lsUsers = getStorageItem<AwesomeData>(LS_AWESOME_DATA_KEY);
+): Promise<UserData> {
+  const lsUsers = getStorageItem<UserData>(LS_USER_DATA_KEY);
   await sleep(1000);
   if (lsUsers) {
     console.log("Using cached data...");
@@ -99,9 +117,8 @@ export async function getData(
 
   console.log("Fetching data from API...");
   await sleep(2000, signal);
-  const awesomeData = normalizeData(data);
-  persistAwesomeData(awesomeData);
-  return awesomeData;
+  persistUserData(data);
+  return data;
 }
 
 export const getErrorMessage = (schema: ZodSchemasType, value: string) => {

@@ -1,6 +1,4 @@
-import { FieldErrors } from "react-hook-form";
-
-import { FormType, User } from "@/lib/types";
+import { NormalizedUserData, User } from "@/lib/types";
 
 export const filterUsersBySearchTerm = (users: User[], searchTerm: string) => {
   return users.filter((field) => {
@@ -10,24 +8,24 @@ export const filterUsersBySearchTerm = (users: User[], searchTerm: string) => {
   });
 };
 
-export const getErrorsAndEmptyFieldsCount = (
-  users: User[],
-  errors: FieldErrors<FormType>,
-  getValues: (key: string) => string
+export const getEmptyAndInvalidFieldsCount = (
+  normalizedData: NormalizedUserData
 ) => {
-  return users.reduce(
-    (acc, user, index) => {
+  return Object.values(normalizedData.users.byId).reduce(
+    (counts, user) => {
       Object.keys(user).forEach((key) => {
-        if (errors.users?.[index]?.[key as keyof User]) {
-          if (getValues(`users.${index}.${key as keyof User}`) === "") {
-            acc.emptyFields++;
-          } else {
-            acc.invalidFields++;
+        if (["email", "phone", "name"].includes(key)) {
+          if (user[key as "email" | "phone" | "name"].isEmpty) {
+            console.log(`${key} is empty for user ${user.id}`);
+            counts.emptyFieldsCount++;
+          }
+          if (user[key as "email" | "phone" | "name"].isInvalid) {
+            counts.invalidFieldsCount++;
           }
         }
       });
-      return acc;
+      return counts;
     },
-    { emptyFields: 0, invalidFields: 0 }
+    { emptyFieldsCount: 0, invalidFieldsCount: 0 }
   );
 };
