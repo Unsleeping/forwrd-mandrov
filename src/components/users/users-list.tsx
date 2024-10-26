@@ -65,7 +65,6 @@ export default function UserList() {
     const newUsers = [newUser, ...prevUsers];
 
     setNormalizedData(normalizeData(newUsers));
-
     setUserData(newUsers);
   };
 

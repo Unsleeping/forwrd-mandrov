@@ -4,20 +4,23 @@ import { FixedSizeList } from "react-window";
 
 import { FormType } from "@/lib/types";
 import { UserRow } from "@/components/users/user-row";
-import { getListSize } from "@/lib/utils";
+import { getListSize, normalizeData } from "@/lib/utils";
+import useSetNormalizedData from "@/hooks/useSetNormalizedData";
+import useSetUserData from "@/hooks/useSetUserData";
 
 export const VirtualizedList = () => {
-  const { trigger, getValues, setValue } = useFormContext<FormType>();
+  const { getValues } = useFormContext<FormType>();
+  const setNormalizedData = useSetNormalizedData();
+  const setUserData = useSetUserData();
 
   const fieldValues = getValues("users");
 
   const handleRemoveUser = (index: number) => {
     const copyUsers = [...getValues("users")];
     copyUsers.splice(index, 1);
-    setValue("users", copyUsers);
 
-    // rerender "index + 1" row which will have "index" after removal
-    trigger(`users.${index}`);
+    setNormalizedData(normalizeData(copyUsers));
+    setUserData(copyUsers);
   };
 
   return (

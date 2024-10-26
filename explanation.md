@@ -36,10 +36,6 @@ It took about 20 hours to complete this task. Not due to an abundance of feature
   1. Contains a `useEvent` hook, which remains stable across re-renders while accessing reactive state values. We validate each input change with Zod, updating a local error state if validity changes, making it crucial not to recreate the `validate()` function on each re-render.
   2. Potential improvement: consider using a Proxy (as in Immer.js) for simpler field handling, which could reduce destructuring and errors for better DX. For now, it’s left as is.
 
-- **`src/components/users/virtualized-list.tsx`**
-
-  1. `handleRemoveUser` includes a workaround. After removing a row, we trigger a re-render programmatically with RHF’s `trigger()` API to keep row fields aligned. For example, deleting row `N` shifts row `N+1` up, so we trigger a re-render.
-
 - **`src/components/users/search.tsx`**
 
   1. Currently, search only filters normalized data. As a result, if error/empty fields are counted and a search is performed, these counts persist. I decided to maintain this behavior, as removing the filter would re-display the errored/empty fields. This can be adjusted by updating normalized data within the search but, in my opinion, the current setup is preferable.
