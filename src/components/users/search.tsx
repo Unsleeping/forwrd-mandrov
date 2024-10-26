@@ -7,8 +7,6 @@ type SearchProps = {
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 };
 
-// !explain that search doesn't affect on errors count due to filtering, not setting normalized data
-
 const Search: React.FC<SearchProps> = ({ setSearchTerm }) => {
   const debouncedSearch = React.useMemo(() => {
     return debounce((e: React.ChangeEvent<HTMLInputElement>) => {

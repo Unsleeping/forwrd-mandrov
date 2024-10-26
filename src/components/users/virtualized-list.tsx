@@ -16,7 +16,6 @@ export const VirtualizedList = () => {
     copyUsers.splice(index, 1);
     setValue("users", copyUsers);
 
-    // !explain hack
     // rerender "index + 1" row which will have "index" after removal
     trigger(`users.${index}`);
   };

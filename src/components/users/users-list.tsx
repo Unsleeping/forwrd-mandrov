@@ -19,14 +19,6 @@ import useSetUserData from "@/hooks/useSetUserData";
 import useUserData from "@/hooks/useUserData";
 import useSetNormalizedData from "@/hooks/useSetNormalizedData";
 
-// ! explain why RHF (useRef instead of useState) is better for decreasing re-renders
-// ! explain about why i choose normalization instead of denormalization
-
-// TODO: - Deploy your code to any platform you wish to be accessible from the web.
-
-// ! explain why i can't control touches for a new row added
-// ! Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count.
-
 export default function UserList() {
   const userData = useUserData();
   const isLoading = useIsLoading();
@@ -64,7 +56,6 @@ export default function UserList() {
       phone: "",
     };
 
-    // !explain hack, getValues('users') doesn't provide all the fields by some reason
     const prevUsers = getValues("users").map((user, index) => ({
       ...user,
       phone: getValues(`users.${index}.phone`),
@@ -73,8 +64,6 @@ export default function UserList() {
     }));
     const newUsers = [newUser, ...prevUsers];
 
-    // ! explain it
-    // ! if add user and not saved changes, after filtering users added user will be removed
     setNormalizedData(normalizeData(newUsers));
 
     setUserData(newUsers);
