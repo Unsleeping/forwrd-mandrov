@@ -1,50 +1,57 @@
-version history
-v1
+# Version History
 
-- implement base layout with users list, init project, choose RHF (react hook form) for reduce rerendering while managing form, choose shadcn/ui for beautiful design system without needed of reinventing and wasting time into css/accessibility, choose tw for better bundling, not to mess with unused styles on every page
-- implement better context for reducing rerenders (preudo-parents)
-- implement skeleton, mock reading data from external store with "async" behavior
-- persist user data
+## v1
 
-v2
+- Implemented base layout with user list, initialized project, and chose React Hook Form (RHF) to reduce re-rendering while managing forms. Opted for `shadcn/UI` for an attractive design system without needing to reinvent or spend time on CSS/accessibility, and used Tailwind CSS for optimized bundling to avoid unused styles across pages.
+- Added an optimized context to reduce re-renders (pseudo-parents).
+- Implemented skeleton loading, mocked reading data from an external store with "async" behavior.
+- Persisted user data.
 
-- after discovering a low performance due to a lot of users rows with form inputs over the page, decided to choose uncontrolled inputs than controlled ones. this refactoring took me a while, cuz i've tried to find a better way to play with RHF + uncontrolled inputs across the task, many of RHF api's which i'm familiar with doesn't work properly because it causes rerenders and inputs lose focus, i've played a lot with internal api's and find some hacks to save better UX while balancing with performance, also discovered some bugs/glitch and made a todo's to find a way to solve it properly
-- add welcome page with animations, add favicon, kinda fix some mobile styles (not perfect but still)
-- add debounced search not to rerender after each keyword entered
-- add virtualization to render only rows in viewport, that is core permofance feature here
-- update component composition
-- playing with onBlur to count errors properly but it has a tradeoff, whether i have uncontrolled inputs and if i want to use RHF api for errors counting, i can only trigger validation only on 'blur' event cuz it causes rerender and user lose its focus
-- add stats page
+## v2
 
-v3
+- After encountering performance issues due to numerous user rows with form inputs, switched from controlled to uncontrolled inputs. This refactoring took time, as I experimented with ways to use RHF alongside uncontrolled inputs across the app. Many RHF APIs I was familiar with didn’t work properly: they caused re-renders and inputs lost focus. After exploring internal APIs and discovering some workarounds, I balanced UX and performance, identified some bugs/glitches, and made a to-do list for further refinement.
+- Added a welcome page with animations, a favicon, and adjusted some mobile styles (not perfect but functional).
+- Added debounced search to prevent re-renders after each keyword entered.
+- Added virtualization to render only rows within the viewport (this is a core performance feature btw)
+- Updated component composition.
+- Experimented with `onBlur` to count errors accurately; however, with uncontrolled inputs, using RHF’s API for error counting only works with the 'blur' event. Using it otherwise causes re-renders and the user loses focus.
+- Added a stats page.
 
-- so i decided not to mess with UX for this and reject this api's to my own one, so i've implemented normalized data (to lookup by O(1) not O(n)) set it in separate provider (pseudo parent) and after validation i've playing with this normalized data to count errors without causing rerenders to lose focus
-- revision all the code, make it more "clean" and understandable for developers, move some code into its own components to hide its logic inside (under the same abstraction layer)
+## v3
 
-time spent:
-it took me about 20h in total to complete this task, not because it has a lot of features to implement, but because of many refactoring steps, while i was finding a better way to save nice UX and balancing with performance it caused some bugs happens, sometimes one feature was broken, sometimes another one. But still, i've fixed most of them and leave some unimportant in TODO's (which aren't mention in the assignment to do)
+- To avoid disrupting UX, I decided against using RHF’s API and created my own. I implemented normalized data (for O(1) lookups rather than O(n)), set it up in a separate provider (pseudo-parent), and used it during validation to count errors without causing re-renders or loss of focus.
+- Revised the entire codebase for cleanliness and readability, moved some code into dedicated components to encapsulate logic under the same abstraction layer.
 
-explanation some technical decisions:
+---
 
-- uncontrolled inputs was chosen because of less coupling with react state not to trigger rerenders after interacting with native browser elements.
-- src/components/users/awesome-input.tsx
+### Time Spent
 
-  1. it has useEvent hook, it is a hook which can be stable during rerenders while has an ability to read from the state reactive values, while we entered a value, we check its validity with zod, if validity changes while changing input's value we play with local state error, that's why it is crucial not to recreate validate() function during rerendering
-  2. it has some potential improvement to use Proxy (like it has in Immer.js), it can lead us not to mess with destructuring fields, more DX, less errors but for now it is like it is
+It took about 20 hours to complete this task. Not due to an abundance of features, but due to numerous refactoring steps required to optimize UX and performance. These adjustments caused occasional bugs, with one feature sometimes breaking another. I resolved most of them, leaving only minor issues in the to-do list (unrelated to the assignment requirements).
 
-- src/components/users/virtualized-list.tsx
+### Explanation of Technical Decisions
 
-1. handleRemoveUser has some hack inside, after removing the row we should trigger rerender programmatically within RHF api trigger(), this help us not to mess with next row fields, like if we delete N row, N+1 now stands on the place N, so we rerender it
+- **Uncontrolled Inputs:** Chosen for less coupling with React state to avoid re-renders when interacting with native browser elements.
+- **`src/components/users/awesome-input.tsx`**
 
-- src/components/users/search.tsx
+  1. Contains a `useEvent` hook, which remains stable across re-renders while accessing reactive state values. We validate each input change with Zod, updating a local error state if validity changes, making it crucial not to recreate the `validate()` function on each re-render.
+  2. Potential improvement: consider using a Proxy (as in Immer.js) for simpler field handling, which could reduce destructuring and errors for better DX. For now, it’s left as is.
 
-1. for now search doesn't setting normalized data, only filtering, that's why if we have some error/empty fields counted and do some search we can still see this numbers, but it is my decision to save this behavior, because if we remove this filter, we can see this errored/emptied fields, once we update normalized data within the search, we can fix this behavior but IMO it is not the correct behavior (while fixing takes only couple of minutes, so it isn't crucial)
+- **`src/components/users/virtualized-list.tsx`**
 
-- src/components/users/users-list.tsx
+  1. `handleRemoveUser` includes a workaround. After removing a row, we trigger a re-render programmatically with RHF’s `trigger()` API to keep row fields aligned. For example, deleting row `N` shifts row `N+1` up, so we trigger a re-render.
 
-1. there is a task to do:
-   > "Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count."
+- **`src/components/users/search.tsx`**
 
-for now i trigger an errors during rerenders of user row if it has one, don't count some touched/untouched fields, it is not hard to implement, but i'm a bit tired of refactoring and ensured that all other features are staying the same, so for now i decided not to implement this
+  1. Currently, search only filters normalized data. As a result, if error/empty fields are counted and a search is performed, these counts persist. I decided to maintain this behavior, as removing the filter would re-display the errored/empty fields. This can be adjusted by updating normalized data within the search but, in my opinion, the current setup is preferable.
 
-2. handleAddUser has some hack with prevUsers, while getValues('users') doesn't have the right values inside uncontrolled fields, i can populate them more precisely with this approach
+- **`src/components/users/users-list.tsx`**
+
+  1. Task pending:
+
+     > "Empty strings produce an error, but only if the field initially had a value and was cleared. If a new row is added without typing anything, it won’t be counted as an error for the error count."
+
+     Currently, I trigger errors during the re-render of user rows if an error exists and haven’t yet implemented a way to distinguish touched/untouched fields. Although this isn’t difficult, I wanted to ensure existing features were stable before adding it.
+
+  2. `handleAddUser` includes a workaround using `prevUsers`. Since `getValues('users')` doesn’t contain the right values within uncontrolled fields, this approach allows for more precise value population.
+
+---
