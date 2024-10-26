@@ -2,8 +2,10 @@ import { NormalizedUserData, User } from "@/lib/types";
 
 export const filterUsersBySearchTerm = (users: User[], searchTerm: string) => {
   return users.filter((field) => {
-    return Object.values(field).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    return Object.values(field).some(
+      (value) =>
+        typeof value === "string" &&
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 };
