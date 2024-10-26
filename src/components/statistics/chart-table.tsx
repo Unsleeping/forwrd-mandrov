@@ -1,12 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,6 +15,7 @@ import {
   ChartTooltip,
 } from "@/components/ui/chart";
 import { colorMap } from "@/_pages/statistics/utils";
+import { StatsHeader } from "./stats-header";
 
 export default function ChartTable({
   dataForChart,
@@ -29,14 +24,7 @@ export default function ChartTable({
 }) {
   return (
     <Card className="w-full max-w-4xl border-0 shadow-none">
-      <CardHeader>
-        <CardTitle className="text-center">
-          User Distribution by Country
-        </CardTitle>
-        <CardDescription className="text-center">
-          Breakdown of users across different countries
-        </CardDescription>
-      </CardHeader>
+      <StatsHeader />
       <CardContent>
         <div className="grid grid-cols-1 gap-4">
           <ChartContainer
