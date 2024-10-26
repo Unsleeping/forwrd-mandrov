@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import { Control, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { memo } from "react";
 import { areEqual } from "react-window";
 
@@ -26,12 +26,12 @@ type UserRowProps = {
   index: number;
   onRemove: () => void;
   style: React.CSSProperties;
-  formControl: Control<FormType>;
+  rowId: string;
 };
 
 export const UserRow = memo<UserRowProps>(
-  ({ index, onRemove, style, formControl }) => {
-    const { getValues, setValue } = useFormContext();
+  ({ index, onRemove, style, rowId }) => {
+    const { getValues, setValue, control } = useFormContext<FormType>();
 
     const nameKey = `users.${index}.name` as const;
     const countryKey = `users.${index}.country` as const;
@@ -44,7 +44,7 @@ export const UserRow = memo<UserRowProps>(
         className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 p-4 border-t items-start max-sm:grid-cols-none"
       >
         <FormField
-          control={formControl}
+          control={control}
           name={nameKey}
           render={() => (
             <FormItem>
@@ -54,6 +54,7 @@ export const UserRow = memo<UserRowProps>(
                   inputKey={nameKey}
                   schema={nameSchema}
                   placeholder="Name"
+                  rowId={rowId}
                 />
               </FormControl>
             </FormItem>
@@ -61,7 +62,7 @@ export const UserRow = memo<UserRowProps>(
         />
 
         <FormField
-          control={formControl}
+          control={control}
           name={countryKey}
           render={() => (
             <FormItem>
@@ -85,7 +86,7 @@ export const UserRow = memo<UserRowProps>(
         />
 
         <FormField
-          control={formControl}
+          control={control}
           name={emailKey}
           render={() => (
             <FormItem>
@@ -95,6 +96,7 @@ export const UserRow = memo<UserRowProps>(
                   inputKey={emailKey}
                   schema={emailSchema}
                   placeholder="example@email.com"
+                  rowId={rowId}
                 />
               </FormControl>
             </FormItem>
@@ -102,7 +104,7 @@ export const UserRow = memo<UserRowProps>(
         />
 
         <FormField
-          control={formControl}
+          control={control}
           name={phoneKey}
           render={() => (
             <FormItem>
@@ -112,6 +114,7 @@ export const UserRow = memo<UserRowProps>(
                   inputKey={phoneKey}
                   schema={phoneSchema}
                   placeholder="Phone"
+                  rowId={rowId}
                 />
               </FormControl>
             </FormItem>

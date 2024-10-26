@@ -47,7 +47,7 @@ function sleep(ms: number, signal?: AbortController["signal"]) {
   });
 }
 
-export const INITIAL_NORMALIZED_DATA = {
+export const getInitialNormalizedData = () => ({
   users: {
     byId: {},
     allIds: [],
@@ -56,10 +56,10 @@ export const INITIAL_NORMALIZED_DATA = {
     byId: {},
     allIds: [],
   },
-};
+});
 
 export function normalizeData(array: User[]): NormalizedUserData {
-  const normalizedData: NormalizedUserData = INITIAL_NORMALIZED_DATA;
+  const normalizedData: NormalizedUserData = getInitialNormalizedData();
 
   array.forEach((item) => {
     if (!normalizedData.users.allIds.includes(item.id)) {

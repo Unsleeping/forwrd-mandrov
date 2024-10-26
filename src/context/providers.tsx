@@ -20,6 +20,7 @@ const NormalizedProvider = ({ children }: ProviderProps) => {
   const [normalizedData, setNormalizedData] = useState<NormalizedUserData>(
     normalizeData(userData)
   );
+
   return (
     <NormalizedContext.Provider value={normalizedData}>
       <SetNormalizedContext.Provider value={setNormalizedData}>

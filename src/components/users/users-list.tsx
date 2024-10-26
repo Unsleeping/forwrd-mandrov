@@ -5,20 +5,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { cn, normalizeData, persistAwesomeData } from "@/lib/utils";
+import { cn, normalizeData, persistUserData } from "@/lib/utils";
 import { formSchema } from "@/lib/schemas";
 import { FormType } from "@/lib/types";
 import SkeletonRows from "@/components/skeleton-rows";
 import { Form } from "@/components/ui/form";
 import { VirtualizedList } from "@/components/users/virtualized-list";
 import useIsLoading from "@/hooks/useIsLoading";
-import useSetAwesomeData from "@/hooks/useSetAwesomeData";
-import useAwesomeData from "@/hooks/useUsers";
 import Search from "@/components/users/search";
-import {
-  filterUsersBySearchTerm,
-  getErrorsAndEmptyFieldsCount,
-} from "@/_pages/users/utils";
+import { filterUsersBySearchTerm } from "@/_pages/users/utils";
+import SaveAction from "@/components/users/save-action";
+import useSetUserData from "@/hooks/useSetUserData";
+import useUserData from "@/hooks/useUserData";
+import useSetNormalizedData from "@/hooks/useSetNormalizedData";
 
 // ! explain why RHF (useRef instead of useState) is better for decreasing re-renders
 // ! explain about why i choose normalization instead of denormalization
@@ -29,16 +28,13 @@ import {
 // ! Empty string also produces an error, but not at the first render, just after it had some value and it was deleted. So if I just added a new row, and didn't start typing anything, it will not be counted as an error for the error count.
 
 export default function UserList() {
-  const awesomeData = useAwesomeData();
+  const userData = useUserData();
   const isLoading = useIsLoading();
-  const setAwesomeData = useSetAwesomeData();
+  const setUserData = useSetUserData();
+  const setNormalizedData = useSetNormalizedData();
 
   const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredUsers = filterUsersBySearchTerm(
-    awesomeData.originalData,
-    searchTerm
-  );
+  const filteredUsers = filterUsersBySearchTerm(userData, searchTerm);
 
   const formValues = { users: filteredUsers };
 
@@ -51,18 +47,12 @@ export default function UserList() {
     },
   });
 
-  const {
-    control,
-    getValues,
-    setValue,
-    trigger,
-    formState: { errors },
-  } = form;
+  const { getValues } = form;
 
   const onSubmit = (values: FormType) => {
-    const awesomeData = normalizeData(values.users);
-    persistAwesomeData(awesomeData);
-    setAwesomeData(awesomeData);
+    const userData = values.users;
+    persistUserData(userData);
+    setUserData(userData);
   };
 
   const handleAddUser = () => {
@@ -74,27 +64,21 @@ export default function UserList() {
       phone: "",
     };
 
+    // !explain hack, getValues('users') doesn't provide all the fields by some reason
+    const prevUsers = getValues("users").map((user, index) => ({
+      ...user,
+      phone: getValues(`users.${index}.phone`),
+      email: getValues(`users.${index}.email`),
+      name: getValues(`users.${index}.name`),
+    }));
+    const newUsers = [newUser, ...prevUsers];
+
     // ! explain it
     // ! if add user and not saved changes, after filtering users added user will be removed
-    setValue("users", [newUser, ...getValues("users")]);
+    setNormalizedData(normalizeData(newUsers));
+
+    setUserData(newUsers);
   };
-
-  const handleRemoveUser = (index: number) => {
-    const copyUsers = [...getValues("users")];
-    copyUsers.splice(index, 1);
-    setValue("users", copyUsers);
-
-    // rerender "index + 1" row which will have "index" after removal
-    trigger(`users.${index}`);
-  };
-
-  const { emptyFields, invalidFields } = getErrorsAndEmptyFieldsCount(
-    formValues.users,
-    errors,
-    getValues
-  );
-
-  const isSavedBtnDisabled = emptyFields !== 0 || invalidFields !== 0;
 
   return (
     <div className="p-4 h-full">
@@ -111,14 +95,8 @@ export default function UserList() {
           // 52px = btn+mb
           className="flex flex-col h-[calc(100%-52px)]"
         >
-          <p>{`Errors: Empty Fields - ${emptyFields}, Invalid Fields - ${invalidFields}`}</p>
-          <Button
-            type="submit"
-            className="my-4 w-fit"
-            disabled={isSavedBtnDisabled}
-          >
-            Save Changes
-          </Button>
+          <SaveAction />
+
           <div
             className={cn(
               "border rounded-lg grid grid-rows-[auto_1fr]",
@@ -139,16 +117,7 @@ export default function UserList() {
                 <UserRoundPlus className="w-4 h-4" />
               </Button>
             </div>
-            {isLoading ? (
-              <SkeletonRows />
-            ) : (
-              <VirtualizedList
-                control={control}
-                itemsCount={filteredUsers.length}
-                onRemove={handleRemoveUser}
-                itemData={filteredUsers}
-              />
-            )}
+            {isLoading ? <SkeletonRows /> : <VirtualizedList />}
           </div>
         </form>
       </Form>

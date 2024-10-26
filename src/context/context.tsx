@@ -1,7 +1,7 @@
 import React, { createContext } from "react";
 
 import { NormalizedUserData, UserData } from "@/lib/types";
-import { INITIAL_NORMALIZED_DATA } from "@/lib/utils";
+import { getInitialNormalizedData } from "@/lib/utils";
 
 export const UserDataContext = createContext<UserData>([]);
 
@@ -12,7 +12,7 @@ export const SetUserDataContext = createContext<
 export const LoadingContext = createContext<boolean>(false);
 
 export const NormalizedContext = createContext<NormalizedUserData>(
-  INITIAL_NORMALIZED_DATA
+  getInitialNormalizedData()
 );
 
 export const SetNormalizedContext = createContext<
