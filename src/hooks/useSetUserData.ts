@@ -7,5 +7,6 @@ export default function useSetUserData() {
   if (!context) {
     throw new Error("useSetUserData must be used within a SetUserDataContext");
   }
+
   return context;
 }
