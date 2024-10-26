@@ -4,7 +4,7 @@ import { UserDataContext } from "@/context/context";
 
 export default function useUserData() {
   const context = useContext(UserDataContext);
-  if (!context) {
+  if (typeof context === "undefined") {
     throw new Error("useUserData must be used within a UserDataContext");
   }
 

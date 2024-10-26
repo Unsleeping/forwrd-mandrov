@@ -4,7 +4,7 @@ import { SetNormalizedContext } from "@/context/context";
 
 export default function useSetNormalizedData() {
   const context = useContext(SetNormalizedContext);
-  if (!context) {
+  if (typeof context === "undefined") {
     throw new Error(
       "useSetNormalizedData must be used within a SetNormalizedContext"
     );

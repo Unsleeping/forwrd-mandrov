@@ -4,7 +4,7 @@ import { NormalizedContext } from "@/context/context";
 
 export default function useNormalizedData() {
   const context = useContext(NormalizedContext);
-  if (!context) {
+  if (typeof context === "undefined") {
     throw new Error(
       "useNormalizedData must be used within a NormalizedContext"
     );
